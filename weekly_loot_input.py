@@ -1,11 +1,15 @@
-# Import dependencies
-from __future__ import print_function
-import pandas as pd
-from gspread_pandas import Spread, Client
-import gspread_pandas
-import numpy as np
-from datetime import date, timedelta
 import time
+import os
+from datetime import date, timedelta
+
+import numpy as np
+import pandas as pd
+from __future__ import print_function
+
+import gspread_pandas as gsp
+
+
+email = os.environ.get('pers_email')
 
 # Get date of most recent Tuesday and format it to pull associated loot file
 today = date.today()
@@ -37,9 +41,9 @@ loot_received_df = loot_received_df.loc[~loot_received_df['item'].isin(bad_items
 loot_received_df = loot_received_df.loc[loot_received_df['player'] != 'Roll']
 
 # Set up gspread_pandas
-config = gspread_pandas.conf.get_config(conf_dir='.', file_name='google_secret.json')
-client = Client(user='cd002009@gmail.com', config=config)
-spread = Spread(user='cd002009@gmail.com', spread='1QjBqgl7HWWhQv4p3thFiZOfmZaTK3FasPHoE7THBxPc', config=config)
+config = gsp.conf.get_config(conf_dir='.', file_name='google_secret.json')
+client = gsp.Client(user=email, config=config)
+spread = gsp.Spread(user=email, spread='1QjBqgl7HWWhQv4p3thFiZOfmZaTK3FasPHoE7THBxPc', config=config)
 
 # Open "Data" sheet and import it to df
 spread.open_sheet('Data')
