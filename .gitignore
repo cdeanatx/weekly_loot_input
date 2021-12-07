@@ -129,4 +129,11 @@ dmypy.json
 .pyre/
 
 # Secrets
-google_secret.json
+*.json
+
+# Loot logs
+loot_logs/
+
+# Test scripts
+*.ipynb
+weekly_loot_input_deprecated.py
