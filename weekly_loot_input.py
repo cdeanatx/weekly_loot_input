@@ -12,9 +12,9 @@ mode = input('(t)est or (p)roduction?')
 # Set flags to determine sections that run
 pull = True
 push = {
-    'Druid': False,
-    'Hunter': False,
-    'Mage': False,
+    'Druid': True,
+    'Hunter': True,
+    'Mage': True,
     'Paladin': True,
     'Priest': True,
     'Rogue': True,

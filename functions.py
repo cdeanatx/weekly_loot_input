@@ -13,7 +13,7 @@ import gspread_pandas as gsp
 def get_raid_date(date_format = '%m.%d'):
     today = date.today()
     weekday = today.weekday()
-    if weekday <= 1:
+    if weekday < 1:
         loot_date = today - timedelta(weekday + 6)
     else:
         loot_date = today - timedelta(weekday - 1)
