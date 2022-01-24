@@ -7,7 +7,7 @@ import datetime
 from functions import *
 
 # Get user input to determine if in testing or production mode
-mode = input('(t)est or (p)roduction?')
+is_test = False
 
 # Set flags to determine sections that run
 pull = True
@@ -23,11 +23,10 @@ push = {
     'Warrior': True
 }
 
-if mode == 't':
+if is_test:
     spread = '1P8GQ7gf2hfSnH_C8Y2M_jf2AxjHvJG4Xxx5Si_liJQk'
-elif mode == 'p':
+else:
     spread = '1QjBqgl7HWWhQv4p3thFiZOfmZaTK3FasPHoE7THBxPc'
-else: sys.exit('Production mode must be "p" or "t"')
 
 # Import personal email from environment vars
 email = os.environ.get('pers_email')
