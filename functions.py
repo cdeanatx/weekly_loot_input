@@ -21,8 +21,8 @@ def get_raid_date(date_format = '%m.%d'):
     return loot_date, loot_date.strftime(date_format)
 
 # Get most recent loot file and filter out erroneus lines
-def get_loot_file(file_name, folder='loot_logs', file_ext='txt'):
-    loot_received_df = pd.read_csv(f'{folder}/{file_name}.{file_ext}', sep='\n', header=None)
+def get_loot_file(file_name, folder='T5', file_ext='txt'):
+    loot_received_df = pd.read_csv(f'loot_logs/{folder}/{file_name}.{file_ext}', sep='\n', header=None)
     loot_received_df.columns = ['full_lines']
     
     return loot_received_df.loc[loot_received_df['full_lines'].str.match(r'^-.*')]

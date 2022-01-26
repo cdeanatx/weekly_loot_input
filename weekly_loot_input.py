@@ -8,6 +8,8 @@ from functions import *
 
 # Get user input to determine if in testing or production mode
 is_test = False
+T5 = False
+BT = True
 
 # Set flags to determine sections that run
 pull = True
@@ -23,10 +25,18 @@ push = {
     'Warrior': True
 }
 
-if is_test:
-    spread = '1P8GQ7gf2hfSnH_C8Y2M_jf2AxjHvJG4Xxx5Si_liJQk'
-else:
-    spread = '1QjBqgl7HWWhQv4p3thFiZOfmZaTK3FasPHoE7THBxPc'
+if BT:
+    folder = 'BT'
+    if is_test:
+        spread = '1689SHfCWtyC_UK8wt261ITTOZCblqwNVHoop85Sgdug'
+    else:
+        spread = '1NqPhGFaCLmiAN71_80vSidM9ar22QMs1QS5-mBBL5Jc'
+elif T5:
+    folder = 'T5'
+    if is_test:
+        spread = '1P8GQ7gf2hfSnH_C8Y2M_jf2AxjHvJG4Xxx5Si_liJQk'
+    else:
+        spread = '1QjBqgl7HWWhQv4p3thFiZOfmZaTK3FasPHoE7THBxPc'
 
 # Import personal email from environment vars
 email = os.environ.get('pers_email')
