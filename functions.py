@@ -153,3 +153,4 @@ def push_class_sheets_to_google(class_dict, class_sheet, spread):
         print(f'Failed. Moving to next.')
         return class_sheet
     print(f'Done in {time.time() - start_time:.2f} seconds.')
+    
