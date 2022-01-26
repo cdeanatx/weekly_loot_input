@@ -7,7 +7,7 @@ import datetime
 from functions import *
 
 # Get user input to determine if in testing or production mode
-is_test = False
+is_test = True
 T5 = False
 BT = True
 
@@ -42,7 +42,7 @@ elif T5:
 email = os.environ.get('pers_email')
 
 # Set number of seconds between loot entry iterations
-sleep_time = 300
+sleep_time = 0
 
 # List of items not tracked by Loot List
 bad_items = ['Staff of Disintegration', 'Warp Slicer', 'Cosmic Infuser',
@@ -54,7 +54,7 @@ bad_items = ['Staff of Disintegration', 'Warp Slicer', 'Cosmic Infuser',
 
 # Collect and organize loot data from previous raid
 raid_date, raid_date_str = get_raid_date()
-loot_file = get_loot_file(raid_date_str)
+loot_file = get_loot_file(raid_date_str, folder = folder)
 extracted_loot = extract_loot_info(loot_file)
 cleaned_loot = clean_loot_df(extracted_loot, bad_items)
 
@@ -118,17 +118,15 @@ for item, player in zip(items, pass_player_class):
 
 # Loop through class dfs and upload them to Google Sheet
 for key in class_dfs.keys():
-    
-
-    # Warrior is always the last key, so we don't need to sleep after it to allow spreadsheet to finish its computing
-    if key == 'Warrior':
-        push_class_sheets_to_google(class_dfs, key, spread)
-        break
 
     # Only push sheet to google if flag is set to True
     if push[key]:
         push_class_sheets_to_google(class_dfs, key, spread)
-        now = datetime.datetime.fromtimestamp(time.time() + 300).strftime('%-I:%M:%S %p')
-        print(f'Next iteration begins at {now}.')
-        time.sleep(sleep_time)
-        
+
+        # Determine if any other sheets should be pushed
+        curr_index = list(push.keys()).index(key)
+
+        if any(list(push.values())[curr_index + 1:-1]):
+            next_iter = datetime.datetime.fromtimestamp(time.time() + sleep_time).strftime('%-I:%M:%S %p')
+            print(f'Next iteration begins at {next_iter}.')
+            time.sleep(sleep_time)
