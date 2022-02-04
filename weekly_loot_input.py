@@ -7,9 +7,8 @@ import datetime
 from functions import *
 
 # Get user input to determine if in testing or production mode
-is_test = True
-T5 = False
-BT = True
+is_test = False
+mode = "T5"
 
 # Set flags to determine sections that run
 pull = True
@@ -25,14 +24,18 @@ push = {
     'Warrior': True
 }
 
-if BT:
+if mode == 'BT':
     folder = 'BT'
+    sleep_time = 60
+    
     if is_test:
         spread = '1689SHfCWtyC_UK8wt261ITTOZCblqwNVHoop85Sgdug'
     else:
         spread = '1NqPhGFaCLmiAN71_80vSidM9ar22QMs1QS5-mBBL5Jc'
-elif T5:
+elif mode == 'T5':
     folder = 'T5'
+    sleep_time = 180
+
     if is_test:
         spread = '1P8GQ7gf2hfSnH_C8Y2M_jf2AxjHvJG4Xxx5Si_liJQk'
     else:
@@ -41,16 +44,16 @@ elif T5:
 # Import personal email from environment vars
 email = os.environ.get('pers_email')
 
-# Set number of seconds between loot entry iterations
-sleep_time = 0
-
 # List of items not tracked by Loot List
 bad_items = ['Staff of Disintegration', 'Warp Slicer', 'Cosmic Infuser',
         'Phaseshift Bulwark', 'Devastation', 'Infinity Blade',
         'Netherstrand Longbow', 'Nether Spike', 'Staff of Disintegration',
         'Pit Lord\'s Satchel', 'Pattern: Belt of Deep Shadow',
         'Pattern: Belt of the Black Eagle', 'Nether Vortex',
-        'Pattern: Boots of the Crimson Hawk']
+        'Pattern: Boots of the Crimson Hawk', 'Pattern: Swiftheal Mantle',
+        'Pattern: Living Earth Bindings', 'Pattern: Shoulders of Lightning Reflexes',
+        'Pattern: Shoulderpads of Renewed Life', 'Plans: Swiftsteel Bracers',
+        'Pattern: Living Earth Shoulders', 'Plans: Dawnsteel Bracers']
 
 # Collect and organize loot data from previous raid
 raid_date, raid_date_str = get_raid_date()
@@ -126,7 +129,7 @@ for key in class_dfs.keys():
         # Determine if any other sheets should be pushed
         curr_index = list(push.keys()).index(key)
 
-        if any(list(push.values())[curr_index + 1:-1]):
+        if any(list(push.values())[curr_index + 1:]):
             next_iter = datetime.datetime.fromtimestamp(time.time() + sleep_time).strftime('%-I:%M:%S %p')
             print(f'Next iteration begins at {next_iter}.')
             time.sleep(sleep_time)
