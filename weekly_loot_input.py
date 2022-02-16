@@ -7,11 +7,21 @@ import datetime
 from functions import *
 
 # Get user input to determine if in testing or production mode
-is_test = False
-mode = "T5"
+is_test = True
+mode = "BT"
 
 # Set flags to determine sections that run
-pull = True
+pull = {
+    'Druid': True,
+    'Hunter': True,
+    'Mage': True,
+    'Paladin': True,
+    'Priest': True,
+    'Rogue': True,
+    'Shaman': True,
+    'Warlock': True,
+    'Warrior': True
+}
 push = {
     'Druid': True,
     'Hunter': True,
@@ -53,7 +63,9 @@ bad_items = ['Staff of Disintegration', 'Warp Slicer', 'Cosmic Infuser',
         'Pattern: Boots of the Crimson Hawk', 'Pattern: Swiftheal Mantle',
         'Pattern: Living Earth Bindings', 'Pattern: Shoulders of Lightning Reflexes',
         'Pattern: Shoulderpads of Renewed Life', 'Plans: Swiftsteel Bracers',
-        'Pattern: Living Earth Shoulders', 'Plans: Dawnsteel Bracers']
+        'Pattern: Living Earth Shoulders', 'Plans: Dawnsteel Bracers',
+        'Plans: Swiftsteel Shoulders', 'Pattern: Mantle of Nimble Thought',
+        'Plans: Dawnsteel Shoulders']
 
 # Collect and organize loot data from previous raid
 raid_date, raid_date_str = get_raid_date()
@@ -65,7 +77,7 @@ cleaned_loot = clean_loot_df(extracted_loot, bad_items)
 client, spread = gspread_pandas_setup(user=email, spread=spread)
 
 # Only pull sheets if flag is set to True
-if pull:
+if any(pull):
     # Import and filter sheets from Google
     data = import_sheet(sheet='Data', index=None, header_rows=1, start_row=2, spread=spread).iloc[:,15:22]
     data = data.loc[data['Rank'] != 'Inactive'][['Player', 'Item', 'NumPassed', 'Equity']]
@@ -93,13 +105,12 @@ no_passes = loot_received.loc[loot_received['players_passed'].isna()].reset_inde
 passes = loot_received.loc[~loot_received['players_passed'].isna()].reset_index(drop=True)
 
 # Only pull class dicts if flag set to True
-if pull:
-    # Create dict to store class sheets
-    class_dfs = {'Druid': None, 'Hunter': None, 'Mage': None, 'Paladin': None, 'Priest': None, 'Rogue': None, 'Shaman': None, 'Warlock': None, 'Warrior': None}
+class_dfs = {'Druid': None, 'Hunter': None, 'Mage': None, 'Paladin': None, 'Priest': None, 'Rogue': None, 'Shaman': None, 'Warlock': None, 'Warrior': None}
 
-    # Iterate over classes and run function to pull and store class sheets in dict
-    for key in class_dfs.keys():
-        pull_class_sheets_from_google(class_dfs, key, spread)
+for key in class_dfs.keys():
+    if pull[key]:        
+        # Iterate over classes and run function to pull and store class sheets in dict
+        class_dfs[key] = pull_class_sheets_from_google(key, spread)
 
 # Create a copy of dict and list of items/players passed
 items = list(passes['item'])
@@ -113,11 +124,11 @@ loot_date_format = raid_date.strftime('%-m/%-d/%y')
 
 # Enter loot for all items and players
 for item, entry in zip(loot_entry['item'], loot_entry['player_received']):
-    enter_loot(class_dfs, item, entry, loot_date_format)
+    class_dfs = enter_loot(class_dfs, item, entry, loot_date_format)
 
 # Enter passes for all items and players
 for item, player in zip(items, pass_player_class):
-    enter_passes(class_dfs, item, player)
+    class_dfs = enter_passes(class_dfs, item, player)
 
 # Loop through class dfs and upload them to Google Sheet
 for key in class_dfs.keys():

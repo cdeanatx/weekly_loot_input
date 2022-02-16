@@ -49,7 +49,11 @@ def gspread_pandas_setup(user, spread):
 
 # Open sheet from Google and import it to df
 def import_sheet(sheet, index, header_rows, start_row, spread):
+
+    start_time = time.time()
+    print(f'Pulling {sheet} sheet from Google.', end=" ")
     spread.open_sheet(sheet)
+    print(f'Done in {time.time() - start_time:.2f} seconds.')
 
     return spread.sheet_to_df(index=index, header_rows=header_rows, start_row=start_row)
 
@@ -87,12 +91,13 @@ def passers(item, player_received, loot_list_df):
     return pass_credit
 
 # Function to pull each class sheet from Google as df and store in dictionary with key = class_name
-def pull_class_sheets_from_google(df_dict, class_sheet, spread):
+def pull_class_sheets_from_google(class_sheet, spread):
     start_time = time.time()
     print(f'Pulling {class_sheet} sheet from Google.', end=" ")
     spread.open_sheet(class_sheet)
-    df_dict[class_sheet] = spread.sheet_to_df(index=None, header_rows=1, start_row=2)
+    df = spread.sheet_to_df(index=None, header_rows=1, start_row=2)
     print(f'Done in {time.time() - start_time:.2f} seconds.')
+    return df
 
 # Function to enter passes for appropriate players 
 def enter_passes(class_df_dict, item, list_of_tuples):
@@ -118,6 +123,8 @@ def enter_passes(class_df_dict, item, list_of_tuples):
         df.iloc[:, start_col:start_col + 4] = player_list
         class_df_dict[player_class] = df
 
+        return class_df_dict
+
 # Function to enter loot received
 def enter_loot(class_df_dict, item, player_class_tuple, date_received):
     
@@ -132,11 +139,19 @@ def enter_loot(class_df_dict, item, player_class_tuple, date_received):
 
     # Convert data to numbers where applicable then apply date item was received in the appropriate row
     player_list = player_list.apply(pd.to_numeric, errors='ignore')
-    player_list.loc[player_list[''] == item, 'Date'] = date_received
+    try:
+        item_index = player_list.loc[(player_list[''] == item) & (pd.isna(player_list['Date']))].index[0]
+    except IndexError:
+        print(f'{item} is not in {player}\'s loot list or they have already received the item.\nContinuing to next item.')
+        return
+    
+    player_list.loc[item_index, 'Date'] = date_received
 
     # Update player's LL in class df and update class df dictionary
     df.iloc[:, start_col:start_col + 5] = player_list
     class_df_dict[player_class] = df
+
+    return class_df_dict
 
 # Function to push updated class dfs to Google Sheet
 def push_class_sheets_to_google(class_dict, class_sheet, spread):
