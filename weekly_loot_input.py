@@ -7,7 +7,7 @@ import datetime
 from functions import *
 
 # Get user input to determine if in testing or production mode
-is_test = True
+is_test = False
 mode = "BT"
 
 # Set flags to determine sections that run

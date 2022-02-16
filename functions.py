@@ -140,10 +140,10 @@ def enter_loot(class_df_dict, item, player_class_tuple, date_received):
     # Convert data to numbers where applicable then apply date item was received in the appropriate row
     player_list = player_list.apply(pd.to_numeric, errors='ignore')
     try:
-        item_index = player_list.loc[(player_list[''] == item) & (pd.isna(player_list['Date']))].index[0]
+        item_index = player_list.loc[(player_list[''] == item) & ((pd.isna(player_list['Date'])) | (player_list['Date'] == ''))].index[0]
     except IndexError:
         print(f'{item} is not in {player}\'s loot list or they have already received the item.\nContinuing to next item.')
-        return
+        return class_df_dict
     
     player_list.loc[item_index, 'Date'] = date_received
 
