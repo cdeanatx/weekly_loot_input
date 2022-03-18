@@ -2,6 +2,7 @@ from __future__ import print_function
 import time
 from datetime import date, timedelta
 import os
+import re
 
 
 import numpy as np
@@ -34,9 +35,12 @@ def extract_loot_info(df):
     return df[['item', 'player']]
 
 # Clean loot df by removing untracked items and items that went to roll
-def clean_loot_df(df, bad_items):
+def clean_loot_df(df, bad_items, mode):
     
-    df = df.loc[~df['item'].isin(bad_items)]
+    if mode == 'T5':
+        df = df.loc[~df['item'].isin(bad_items)]
+    else:
+        df = df.loc[~df['item'].str.contains(bad_items)]
 
     return df.loc[df['player'] != 'Roll']
 

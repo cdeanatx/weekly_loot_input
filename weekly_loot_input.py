@@ -7,7 +7,7 @@ import datetime
 from functions import *
 
 # Get user input to determine if in testing or production mode
-is_test = False
+is_test = True
 mode = "BT"
 
 # Set flags to determine sections that run
@@ -37,14 +37,22 @@ push = {
 if mode == 'BT':
     folder = 'BT'
     sleep_time = 60
-    
+    bad_items = r'^Pattern:|Design:|Plans:'
+
     if is_test:
         spread = '1689SHfCWtyC_UK8wt261ITTOZCblqwNVHoop85Sgdug'
     else:
         spread = '1NqPhGFaCLmiAN71_80vSidM9ar22QMs1QS5-mBBL5Jc'
 elif mode == 'T5':
     folder = 'T5'
-    sleep_time = 180
+    sleep_time = 90
+    # List of items not tracked by Loot List
+    bad_items = ['Staff of Disintegration', 'Warp Slicer', 'Cosmic Infuser',
+                'Phaseshift Bulwark', 'Devastation', 'Infinity Blade',
+                'Netherstrand Longbow', 'Nether Spike', 'Staff of Disintegration',
+                'Pit Lord\'s Satchel', 'Pattern: Belt of Deep Shadow',
+                'Pattern: Belt of the Black Eagle', 'Nether Vortex',
+                'Pattern: Boots of the Crimson Hawk']
 
     if is_test:
         spread = '1P8GQ7gf2hfSnH_C8Y2M_jf2AxjHvJG4Xxx5Si_liJQk'
@@ -55,23 +63,23 @@ elif mode == 'T5':
 email = os.environ.get('pers_email')
 
 # List of items not tracked by Loot List
-bad_items = ['Staff of Disintegration', 'Warp Slicer', 'Cosmic Infuser',
-        'Phaseshift Bulwark', 'Devastation', 'Infinity Blade',
-        'Netherstrand Longbow', 'Nether Spike', 'Staff of Disintegration',
-        'Pit Lord\'s Satchel', 'Pattern: Belt of Deep Shadow',
-        'Pattern: Belt of the Black Eagle', 'Nether Vortex',
-        'Pattern: Boots of the Crimson Hawk', 'Pattern: Swiftheal Mantle',
-        'Pattern: Living Earth Bindings', 'Pattern: Shoulders of Lightning Reflexes',
-        'Pattern: Shoulderpads of Renewed Life', 'Plans: Swiftsteel Bracers',
-        'Pattern: Living Earth Shoulders', 'Plans: Dawnsteel Bracers',
-        'Plans: Swiftsteel Shoulders', 'Pattern: Mantle of Nimble Thought',
-        'Plans: Dawnsteel Shoulders']
+# bad_items = ['Staff of Disintegration', 'Warp Slicer', 'Cosmic Infuser',
+#         'Phaseshift Bulwark', 'Devastation', 'Infinity Blade',
+#         'Netherstrand Longbow', 'Nether Spike', 'Staff of Disintegration',
+#         'Pit Lord\'s Satchel', 'Pattern: Belt of Deep Shadow',
+#         'Pattern: Belt of the Black Eagle', 'Nether Vortex',
+#         'Pattern: Boots of the Crimson Hawk', 'Pattern: Swiftheal Mantle',
+#         'Pattern: Living Earth Bindings', 'Pattern: Shoulders of Lightning Reflexes',
+#         'Pattern: Shoulderpads of Renewed Life', 'Plans: Swiftsteel Bracers',
+#         'Pattern: Living Earth Shoulders', 'Plans: Dawnsteel Bracers',
+#         'Plans: Swiftsteel Shoulders', 'Pattern: Mantle of Nimble Thought',
+#         'Plans: Dawnsteel Shoulders', 'Pattern: Bracers of Renewed Life']
 
 # Collect and organize loot data from previous raid
 raid_date, raid_date_str = get_raid_date()
 loot_file = get_loot_file(raid_date_str, folder = folder)
 extracted_loot = extract_loot_info(loot_file)
-cleaned_loot = clean_loot_df(extracted_loot, bad_items)
+cleaned_loot = clean_loot_df(extracted_loot, bad_items, mode)
 
 # Set up gspread_pandas
 client, spread = gspread_pandas_setup(user=email, spread=spread)
